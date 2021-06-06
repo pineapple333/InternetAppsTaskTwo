@@ -1,0 +1,32 @@
+<% for(var i = 0; i < rows.length; i++) { %>
+    <tr>
+        <td class='row_data'>
+            <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="radio_reg_id"
+                  value="<%=rows[i].reg_id%>"
+                  id="radio_reg_id"
+                  onchange='val()'
+                />
+        </td>
+        <td class='row_data'><%= rows[i].reg_id %></td>
+        <td class="w-25">
+            <img src="<%= rows[i].photo %>" class="img-fluid img-thumbnail" alt="Car">
+        </td>
+        <td class='row_data'><%= rows[i].uname %> <%= rows[i].sname %></td>
+        <td class='row_data'><%= moment(rows[i].dfrom).format('YYYY-MM-DD') %></td>
+        <td class='row_data'><%= moment(rows[i].dto).format('YYYY-MM-DD') %></td>
+        <td class='row_data'><%= rows[i].cost %></td>
+        <td class='row_data'><%= rows[i].status %></td>
+        <td>
+            <a href="/reservation/edit?reg_id=<%= rows[i].reg_id%>" class="<%= rows[i].status_code == 5 ? 'd-none' : '' %> btn border-shadow update">
+                <span class="text-gradient"><i class="fas fa-pencil-alt"></i></span>
+            </a>
+            <a href="/reservation/delete?reg_id=<%= rows[i].reg_id%>" class="<%= rows[i].status_code == 5 ? 'd-none' : '' %> btn border-shadow delete" data-id=<%= rows[i]._id%> >
+                <span class="text-gradient"><i class="fas fa-times"></i></span>
+            </a>
+        </td>
+    </tr>
+    <% } %>
