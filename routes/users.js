@@ -34,6 +34,21 @@ router.get('/login', redirectHome, (req,res) => {
     res.render('login');
 });
 
+router.get('/tasks', (req, res) => {
+
+    if (typeof req.session.userId === 'undefined')
+        req.session.userId = 1
+    if (req.session.is_admin){
+        res.redirect('/admin')
+        return
+    }
+
+    
+
+})
+
+
+
 // Main user dashboard
 router.get('/dashboard', redirectLogin, (req,res)=>{
     // res.send(`Hello ${req.user.name} ${req.user.sname}`)
@@ -44,7 +59,9 @@ router.get('/dashboard', redirectLogin, (req,res)=>{
         res.redirect('/admin')
         return
     }
+
     console.log(`Session ID: ${req.session.userId}`)
+
     const id = req.session.userId
     const is_awaiting = req.query.is_awaiting
     const is_returned = req.query.is_returned
