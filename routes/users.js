@@ -34,6 +34,39 @@ router.get('/login', redirectHome, (req,res) => {
     res.render('login');
 });
 
+function buildHierarchy(rows, target, alreadyIn){
+
+    resultHT = {}
+
+    for (let i = 0; i < rows.length; i++) {
+        resultHT [rows[i].parent] = [rows[i].child]
+        for (let j = 0; j < rows.length; j++) {
+            if (rows[i] === rows[j])
+                continue
+            if (rows[i].parent === rows[j].parent)
+                resultHT [rows[i].parent].push(rows[j].child)
+        }
+    }
+
+    // create a recursive structure
+
+    // for ( let [ outer_key, outer_value ] of Object.entries(resultHT) ) {
+    //     // finalHT [outer_key] = []
+    //     for ( let j = 0; j < outer_value.length; j++ ) { // go over an array of dependant tasks
+    //         // console.log(`${outer_value[j]} in ${String(Object.keys(resultHT))} ? ${outer_value[j] in Object.keys(resultHT)}`)
+    //         if ( String(Object.keys(resultHT)).includes(outer_value[j]) ){ // if true replace  string with corresponding array
+    //             console.log(resultHT[outer_key][j])
+    //             resultHT[outer_key][j].push(resultHT[outer_value[j]])
+    //         }else{
+    //             resultHT[outer_key][j].push(outer_value[j])
+    //         }
+    //     }
+    // }
+    // return finalHT
+
+    return resultHT
+}
+
 router.get('/tasks', (req, res) => {
 
     if (typeof req.session.userId === 'undefined')
@@ -45,9 +78,15 @@ router.get('/tasks', (req, res) => {
 
     var db = req.app.get('db');
 
-    db.query(`select parent.contents as parent_name, child.contents as child_name from task_relationship as tr  left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id;`, (err, rows, fields) => {
+    var myList = []
+
+    db.query(`select parent.contents as parent, child.contents as child from task_relationship as tr  left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id;`, (err, rows, fields) => {
         if (!err){
+            tmp_list = []
             if (rows.length !== 0){
+
+                console.log(buildHierarchy(rows))
+
                 res.send(rows)
                 res.end()
                 // console.log(`${rows.length}`)
