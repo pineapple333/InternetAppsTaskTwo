@@ -43,7 +43,53 @@ router.get('/tasks', (req, res) => {
         return
     }
 
-    
+    var db = req.app.get('db');
+
+    db.query(`select parent.contents as parent_name, child.contents as child_name from task_relationship as tr  left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id;`, (err, rows, fields) => {
+        if (!err){
+            if (rows.length !== 0){
+                res.send(rows)
+                res.end()
+                // console.log(`${rows.length}`)
+                // res.return('users/index', {
+                //     contents: `${rows}`
+                // })
+            }
+        }
+    })
+
+})
+
+router.get("/projects", (req, res) => {
+
+    if (typeof req.session.userId === 'undefined')
+        req.session.userId = 2
+    if (req.session.is_admin){
+        res.redirect('/admin')
+        return
+    }
+
+    console.log(`Session ID: ${req.session.userId}`)
+
+    var db = req.app.get('db');
+    db.query(`SELECT user.id as user_id, registration.status as status_code, registration.id as reg_id, user.id as _id, user.name as uname, user.surname as sname, DATE(registration.date_from) as dfrom,\
+    DATE(registration.date_to) as dto, registration_status.name as status, car.photo as photo, registration.price as cost  \
+    FROM registration INNER JOIN user ON registration.user_id=user.id\
+    INNER JOIN registration_status ON registration.status=registration_status.id\
+    INNER JOIN car ON registration.car_id=car.id\
+    WHERE user.id=${id};`, 
+    async (err, rows, fields) => {
+        if (!err){
+            if (rows.length !== 0){
+                // res.status(200).send(`Your reservations: ${JSON.stringify(rows.filter(row => active_filters.includes(row.status)))}"`);
+                // res.redirect('/users/dashboard', {title: "Your dashboard", items: rows.filter(row => active_filters.includes(row.status))})
+                res.return('users/index', {
+                    rows
+                })
+            }
+        }
+        else console.log(err);
+    });
 
 })
 
