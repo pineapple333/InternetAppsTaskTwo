@@ -80,7 +80,8 @@ router.get('/tasks', (req, res) => {
 
     var myList = []
 
-    db.query(`select parent.contents as parent, child.contents as child from task_relationship as tr left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id where parent.id in (select task_id from task_user where user_id = ${req.session.userId});`, (err, rows, fields) => {
+    // db.query(`select parent.contents as parent, child.contents as child from task_relationship as tr left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id where parent.id in (select task_id from task_user where user_id = ${req.session.userId});`, (err, rows, fields) => {
+        db.query(`select parent.contents as parent, child.contents as child from task_relationship as tr left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id;`, (err, rows, fields) => {
         if (!err){
             tmp_list = []
             if (rows.length !== 0){
@@ -97,6 +98,50 @@ router.get('/tasks', (req, res) => {
         }
     })
 
+})
+
+router.put('/update_task/:task_id', (req, res) => {
+
+    const task_id = req.params.task_id
+    const date_from = req.body.date_from
+    const date_to = req.body.date_to
+
+    console.log(`Date from: ${date_from}. Date to: ${date_to}`)
+    
+    var db = req.app.get('db');
+
+    db.query(`select contents, date_to, date_from from task where id in (select parent_task from task_relationship where child_task = ${task_id});`, async (err, rows, fields) => {
+        if (!err){
+            if (rows.length !== 0 && typeof date_from !== 'undefined' && typeof date_to !== 'undefined' ){
+                // for each parent task check if new dates are valid
+                rows.forEach(async row => {
+                    console.log(`date from db: ${new Date(row.date_from).getTime()} date to db: ${new Date(date_to).getTime()}`)
+                    if (new Date(row.date_from).getTime() > new Date(date_from).getTime()){
+                        res.end("New date is earlier than the beggining of the parent task")
+                    }
+                    if (new Date(row.date_to).getTime() < new Date(date_to).getTime()){
+                        res.end("New date is later than the end of the parent task")
+                    }
+                    const query = `update task set date_from = '${date_from}', date_to = '${date_to}' where id = ${task_id};`
+                    console.log("Executed outer ...")
+                    await new Promise((resolve, reject) => {
+                        db.query(query, (err, rows, fields) => {
+                            if (!err){
+                                console.log("Executed inner ...")
+                                resolve()
+                            }else{
+                                reject()
+                                console.log(err);
+                            }
+                        })
+                    })
+                    res.end("Updated")
+                });
+            }else{
+                res.end(" Can't find this task ...")
+            }
+        }
+    })
 })
 
 router.get("/projects", (req, res) => {

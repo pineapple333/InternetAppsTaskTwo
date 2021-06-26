@@ -103,7 +103,8 @@ app.use('/js', express.static('assets/js'))
 // Bodyparser
 // app.use(express.json());
 // app.use(express.bodyParser());
-app.use(express.urlencoded({ limit: '10mb', extended: true}));
+app.use(express.urlencoded({ limit: '10mb', extended: false}));
+app.use(express.json())
 
 // Express session middleware
 app.use(session({
