@@ -155,6 +155,40 @@ router.put('/update_task/:task_id', (req, res) => {
     })
 })
 
+router.post("/finish_task/:task_id", (req, res) => {
+
+    var db = req.app.get('db')
+
+    const task_id = req.params.task_id
+
+    const query = `update task_status set status_id = 6 where task_id = ${task_id};`
+    db.query(query, (err, rows, fields) => {
+        if (!err){
+            res.send("Markted the task as done")
+        }else{
+            console.log(err);
+        }
+    })
+
+})
+
+router.post("/accept_task/:task_id", (req, res) => {
+
+    var db = req.app.get('db')
+
+    const task_id = req.params.task_id
+
+    const query = `update task_status set status_id = 4 where task_id = ${task_id};`
+    db.query(query, (err, rows, fields) => {
+        if (!err){
+            res.send("Markted the task as accepted")
+        }else{
+            console.log(err);
+        }
+    })
+
+})
+
 router.get("/projects", (req, res) => {
 
     if (typeof req.session.userId === 'undefined')
