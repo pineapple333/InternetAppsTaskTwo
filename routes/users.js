@@ -125,9 +125,20 @@ router.put('/update_task/:task_id', (req, res) => {
                     const query = `update task set date_from = '${date_from}', date_to = '${date_to}' where id = ${task_id};`
                     console.log("Executed outer ...")
                     await new Promise((resolve, reject) => {
-                        db.query(query, (err, rows, fields) => {
+                        db.query(query, async (err, rows, fields) => {
                             if (!err){
-                                console.log("Executed inner ...")
+                                const query = `update task_status set status_id = 3 where task_id = ${task_id};`
+                                await new Promise((resolve, reject) => {
+                                    db.query(query, (err, rows, fields) => {
+                                        if (!err){
+                                            console.log("Updated the status of the task")
+                                            resolve()
+                                        }else{
+                                            reject()
+                                            console.log(err);
+                                        }
+                                    })
+                                })
                                 resolve()
                             }else{
                                 reject()
