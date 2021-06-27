@@ -148,6 +148,7 @@ app.use('/guests', require('./routes/guests'));
 app.use('/reservation', require('./routes/reservation'))
 app.use('/admin', require('./routes/admin'))
 app.use('/emailConfirmation', require('./routes/emailConfirmation'))
+app.use('/manager', require('./routes/manager'))
 
 const PORT = process.env.PORT || 5000;
 

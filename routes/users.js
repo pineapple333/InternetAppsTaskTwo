@@ -78,17 +78,31 @@ router.get('/tasks', (req, res) => {
 
     var db = req.app.get('db');
 
-    var myList = []
+    var assigned_rows = []
 
     // db.query(`select parent.contents as parent, child.contents as child from task_relationship as tr left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id where parent.id in (select task_id from task_user where user_id = ${req.session.userId});`, (err, rows, fields) => {
-        db.query(`select parent.contents as parent, child.contents as child from task_relationship as tr left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id;`, (err, rows, fields) => {
+        db.query(`select child.id, parent.contents as parent, child.contents as child from task_relationship as tr left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id;`, async (err, rows, fields) => {
         if (!err){
             tmp_list = []
             if (rows.length !== 0){
 
-                console.log(buildHierarchy(rows))
+                await new Promise((resolve, reject) => {
+                    db.query(`select * from task_user where user_id = ${req.session.userId}`, (err, rows, fields) => {
+                        if (!err){
+                            console.log("Updated the status of the task")
+                            assigned_rows = rows
+                            resolve()
+                        }else{
+                            reject()
+                            console.log(err);
+                        }
+                    })
+                })
 
-                res.send(rows)
+                res.send({
+                    all_tasks: buildHierarchy(rows), // all tasks there are
+                    assigned: assigned_rows // tasks assigned to this particular person
+                })
                 res.end()
                 // console.log(`${rows.length}`)
                 // res.return('users/index', {
@@ -122,32 +136,33 @@ router.put('/update_task/:task_id', (req, res) => {
                     if (new Date(row.date_to).getTime() < new Date(date_to).getTime()){
                         res.end("New date is later than the end of the parent task")
                     }
-                    const query = `update task set date_from = '${date_from}', date_to = '${date_to}' where id = ${task_id};`
-                    console.log("Executed outer ...")
-                    await new Promise((resolve, reject) => {
-                        db.query(query, async (err, rows, fields) => {
-                            if (!err){
-                                const query = `update task_status set status_id = 3 where task_id = ${task_id};`
-                                await new Promise((resolve, reject) => {
-                                    db.query(query, (err, rows, fields) => {
-                                        if (!err){
-                                            console.log("Updated the status of the task")
-                                            resolve()
-                                        }else{
-                                            reject()
-                                            console.log(err);
-                                        }
-                                    })
-                                })
-                                resolve()
-                            }else{
-                                reject()
-                                console.log(err);
-                            }
-                        })
-                    })
-                    res.end("Updated")
                 });
+                
+                const query = `update task set date_from = '${date_from}', date_to = '${date_to}' where id = ${task_id};`
+                console.log("Executed outer ...")
+                await new Promise((resolve, reject) => {
+                    db.query(query, async (err, rows, fields) => {
+                        if (!err){
+                            const query = `update task_status set status_id = 3 where task_id = ${task_id};`
+                            await new Promise((resolve, reject) => {
+                                db.query(query, (err, rows, fields) => {
+                                    if (!err){
+                                        console.log("Updated the status of the task")
+                                        resolve()
+                                    }else{
+                                        reject()
+                                        console.log(err);
+                                    }
+                                })
+                            })
+                            resolve()
+                        }else{
+                            reject()
+                            console.log(err);
+                        }
+                    })
+                })
+                res.end("Updated")
             }else{
                 res.end(" Can't find this task ...")
             }
@@ -192,7 +207,7 @@ router.post("/accept_task/:task_id", (req, res) => {
 router.get("/projects", (req, res) => {
 
     if (typeof req.session.userId === 'undefined')
-        req.session.userId = 2
+        req.session.userId = 1
     if (req.session.is_admin){
         res.redirect('/admin')
         return
