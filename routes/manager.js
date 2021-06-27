@@ -1,10 +1,5 @@
 const express = require('express')
 var app = module.exports = express()
-const passport = require('passport')
-const { password } = require('../config/keys');
-const bcrypt = require('bcryptjs')
-const randomstring = require('randomstring')
-const nodemailer = require('nodemailer')
 
 const router = express.Router();
 
@@ -30,26 +25,28 @@ const redirectHome = (req, res, next) => {
     }
 }
 
-app.get('/new_project', redirectLogin,  (req,res) => {
-    res.render("new_car/index")
-})
+// app.get('/new_project', (req,res) => {
+//     res.render("new_car/index")
+// })
 
-app.post('/new_project', redirectLogin, (req,res) => {
+app.post('/new_project', (req,res) => {
     
     const name = req.body.name
 
     var db = req.app.get('db');
 
-    db.query(`insert into _project (name) values (${name});`, async (err, rows, fields) => {
+    db.query(`insert into _project (name) values ('${name}');`, async (err, rows, fields) => {
         if (!err){
             // redirect here
+            res.end("Created a new project")
         }
     })
 
-    res.redirect('/admin')
+    res.end("For some reason we reached the end of the method")
+    // res.redirect('/admin')
 })
 
-app.post('/assign_task', redirectLogin, (req,res) => {
+app.post('/assign_task', (req,res) => {
 
     const user_id = req.body.user_id
     const task_id = req.body.task_id
@@ -64,5 +61,3 @@ app.post('/assign_task', redirectLogin, (req,res) => {
         }
     })
 })
-
-module.exports = router
