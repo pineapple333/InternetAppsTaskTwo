@@ -55,9 +55,61 @@ app.post('/assign_task', (req,res) => {
 
     var db = req.app.get('db');
 
-    db.query(`insert into task_user (user_id, task_id) values (${user_id}, ${task_id});`, async (err, rows, fields) => {
-        if (!err){
-            res.end("Assigned the task to the user")
+    db.query(`select * from task_user where user_id = ${user_id}, task_id = ${task_id};`, async (outer_err, outer_rows, fields) => {
+        if (!outer_err){
+            if (outer_rows.length === 0){
+                await new Promise((resolve, reject) => {
+                    db.query(`insert into task_user (user_id, task_id) values (${user_id}, ${task_id});`, (inner_err, inner_rows, fields) => {
+                        if (!inner_err){
+                            assigned_rows = rows
+                            resolve()
+                        }else{
+                            console.log(err);
+                            reject()
+                        }
+                    })
+                })
+                res.end("Assigned the task to the user")
+            }else{
+                res.end("This task has been assigned to this user.")
+            }
+        }
+    })
+})
+
+app.get('/assign_task', (req,res) => {
+
+    const user_id = req.body.user_id
+    const task_id = req.body.task_id
+    // const time_from = req.body.time_from
+    // const time_to = req.body.time_to
+
+    var db = req.app.get('db');
+
+    // This select limits the number of executors per one task to 1
+    db.query(`select * from task where id not in (
+        select task_id from task_user
+    );`, async (outer_err, outer_rows, fields) => {
+        if (!outer_err){
+            users = []
+            await new Promise((resolve, reject) => {
+                db.query(`select * from user;`, (inner_err, inner_rows, fields) => {
+                    if (!inner_err){
+                        users = inner_rows
+                        resolve()
+                    }else{
+                        console.log(err);
+                        reject()
+                    }
+                })
+            })
+            console.log(`Users: ${users}, tasks: ${outer_rows}`)
+            res.end({
+                    tasks: outer_rows,
+                    users
+                })
+        }else{
+            res.end("There's been an error in the first request.")
         }
     })
 })
