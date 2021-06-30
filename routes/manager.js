@@ -1,4 +1,5 @@
-const express = require('express')
+const express = require('express');
+const reservation = require('./reservation');
 var app = module.exports = express()
 
 const router = express.Router();
@@ -79,11 +80,6 @@ app.post('/assign_task', (req,res) => {
 
 app.get('/assign_task', (req,res) => {
 
-    const user_id = req.body.user_id
-    const task_id = req.body.task_id
-    // const time_from = req.body.time_from
-    // const time_to = req.body.time_to
-
     var db = req.app.get('db');
 
     // This select limits the number of executors per one task to 1
@@ -103,11 +99,13 @@ app.get('/assign_task', (req,res) => {
                     }
                 })
             })
-            console.log(`Users: ${users}, tasks: ${outer_rows}`)
-            res.end({
+            // console.log(`Users: ${users}, tasks: ${outer_rows}`)
+            tasks = []
+            res.send({
                     tasks: outer_rows,
                     users
                 })
+            res.end()
         }else{
             res.end("There's been an error in the first request.")
         }

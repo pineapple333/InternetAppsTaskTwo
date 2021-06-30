@@ -12,53 +12,53 @@ const moment = require('moment')
 const axios = require('axios')
 const stripe = require('stripe')(process.env.STRIPE_SECRET) 
 
-const initializePassport = require('./config/passport')
-initializePassport(passport, 
-    email => { 
-        return new Promise((resolve, reject) => {
-            var db = app.get('db')
-            db.query("SELECT u.id, u.name, u.surname, u.email, u.pwd FROM user as u WHERE u.email=?", [email], (err, rows, fields) => {
-                if (!err){
-                    if (rows.length !== 0){
-                        resolve( { 
-                            id: rows[0].id, 
-                            name: rows[0].name, 
-                            sname: rows[0].surname,
-                            email: rows[0].email,  
-                            pwd: rows[0].pwd
-                        } )
-                    }else{
-                        reject(null)
-                    }
-                }
-                else
-                    console.log(err);
-            });
-        })
-    },
-    id => { 
-        return new Promise((resolve, reject) => {
-            var db = app.get('db')
-            db.query("SELECT u.id, u.name, u.surname, u.email, u.pwd FROM user as u WHERE u.email=?", [id], (err, rows, fields) => {
-                if (!err){
-                    if (rows.length !== 0){
-                        resolve( { 
-                            id: rows[0].id, 
-                            name: rows[0].name, 
-                            sname: rows[0].surname,
-                            email: rows[0].email,  
-                            pwd: rows[0].pwd
-                        } )
-                    }else{
-                        reject(null)
-                    }
-                }
-                else
-                    console.log(err);
-            });
-        })
-    }
-)
+// const initializePassport = require('./config/passport')
+// initializePassport(passport, 
+//     email => { 
+//         return new Promise((resolve, reject) => {
+//             var db = app.get('db')
+//             db.query("SELECT u.id, u.name, u.surname, u.email, u.pwd FROM user as u WHERE u.email=?", [email], (err, rows, fields) => {
+//                 if (!err){
+//                     if (rows.length !== 0){
+//                         resolve( { 
+//                             id: rows[0].id, 
+//                             name: rows[0].name, 
+//                             sname: rows[0].surname,
+//                             email: rows[0].email,  
+//                             pwd: rows[0].pwd
+//                         } )
+//                     }else{
+//                         reject(null)
+//                     }
+//                 }
+//                 else
+//                     console.log(err);
+//             });
+//         })
+//     },
+//     id => { 
+//         return new Promise((resolve, reject) => {
+//             var db = app.get('db')
+//             db.query("SELECT u.id, u.name, u.surname, u.email, u.pwd FROM user as u WHERE u.email=?", [id], (err, rows, fields) => {
+//                 if (!err){
+//                     if (rows.length !== 0){
+//                         resolve( { 
+//                             id: rows[0].id, 
+//                             name: rows[0].name, 
+//                             sname: rows[0].surname,
+//                             email: rows[0].email,  
+//                             pwd: rows[0].pwd
+//                         } )
+//                     }else{
+//                         reject(null)
+//                     }
+//                 }
+//                 else
+//                     console.log(err);
+//             });
+//         })
+//     }
+// )
 
 const app = express();
 
@@ -66,10 +66,15 @@ const app = express();
 // require("./config/passport")(passport)
 
 // Credentials to connect to mysql
-const cred = require('./config/keys');
+// const cred = require('./config/keys');
 
 // Create connection
-const db = mysql.createConnection(cred);
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'webuser',
+    password: '1234',
+    database: 'groupbase'
+});
 
 // Connect
 db.connect((err) => {

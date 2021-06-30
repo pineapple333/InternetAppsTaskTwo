@@ -1,6 +1,6 @@
 const express = require('express');
-const { password } = require('../config/keys');
-const passport = require('passport')
+// const { password } = require('../config/keys');
+// const passport = require('passport')
 const bcrypt = require('bcryptjs')
 const randomstring = require('randomstring')
 const nodemailer = require('nodemailer')
@@ -89,7 +89,7 @@ router.get('/tasks', (req, res) => {
                 await new Promise((resolve, reject) => {
                     db.query(`select * from task_user where user_id = ${req.session.userId}`, (err, rows, fields) => {
                         if (!err){
-                            console.log("Updated the status of the task")
+                            // console.log("Updated the status of the task")
                             assigned_rows = rows
                             resolve()
                         }else{
@@ -108,6 +108,8 @@ router.get('/tasks', (req, res) => {
                 // res.return('users/index', {
                 //     contents: `${rows}`
                 // })
+            }else{
+                res.end("There are no tasks for this user.")
             }
         }
     })
@@ -236,6 +238,9 @@ router.get("/projects", (req, res) => {
     });
 
 })
+
+
+//////////// OLD /////////////////////
 
 
 
