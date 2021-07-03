@@ -80,16 +80,19 @@ app.post('/assign_task', (req,res) => {
 
 app.get('/assign_task', (req,res) => {
 
+    const user_id = req.session.userId
+
     var db = req.app.get('db');
 
-    // This select limits the number of executors per one task to 1
+    // This select limits the number of executors per one task to 1 by showing only unassigned tasks.
     db.query(`select * from task where id not in (
-        select task_id from task_user
-    );`, async (outer_err, outer_rows, fields) => {
+        select task_id from task_user );`, async (outer_err, outer_rows, fields) => {
         if (!outer_err){
             users = []
             await new Promise((resolve, reject) => {
-                db.query(`select * from user;`, (inner_err, inner_rows, fields) => {
+                db.query(`select * from user where id in (
+                    select user_id from user_role where role_id not in (2, 3) 
+                ) and id not in (select user_id from task_user);`, (inner_err, inner_rows, fields) => {
                     if (!inner_err){
                         users = inner_rows
                         resolve()
