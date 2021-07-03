@@ -56,13 +56,12 @@ app.post('/assign_task', (req,res) => {
 
     var db = req.app.get('db');
 
-    db.query(`select * from task_user where user_id = ${user_id}, task_id = ${task_id};`, async (outer_err, outer_rows, fields) => {
+    db.query(`select * from task_user where user_id = ${user_id} and task_id = ${task_id};`, async (outer_err, outer_rows, fields) => {
         if (!outer_err){
             if (outer_rows.length === 0){
                 await new Promise((resolve, reject) => {
                     db.query(`insert into task_user (user_id, task_id) values (${user_id}, ${task_id});`, (inner_err, inner_rows, fields) => {
                         if (!inner_err){
-                            assigned_rows = rows
                             resolve()
                         }else{
                             console.log(err);

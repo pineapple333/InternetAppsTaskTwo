@@ -71,10 +71,6 @@ router.get('/tasks', (req, res) => {
 
     if (typeof req.session.userId === 'undefined')
         req.session.userId = 1
-    if (req.session.is_admin){
-        res.redirect('/admin')
-        return
-    }
 
     var db = req.app.get('db');
 
@@ -177,11 +173,12 @@ router.post("/finish_task/:task_id", (req, res) => {
     var db = req.app.get('db')
 
     const task_id = req.params.task_id
+    const user_id = req.session.user_id
 
     const query = `update task_status set status_id = 6 where task_id = ${task_id};`
     db.query(query, (err, rows, fields) => {
         if (!err){
-            res.send("Markted the task as done")
+            res.send("Marked the task as done")
         }else{
             console.log(err);
         }
@@ -204,6 +201,38 @@ router.post("/accept_task/:task_id", (req, res) => {
         }
     })
 
+})
+
+router.post("/abandon_task/:task_id", (req, res) => {
+
+    if (typeof req.session.userId === 'undefined')
+        req.session.userId = 1
+
+    const user_id = req.session.userId
+    const task_id = req.params.task_id
+
+    var db = req.app.get('db')
+
+    const query = `update task_status set status_id = 1 where task_id = ${task_id};`
+    db.query(query, async (err, rows, fields) => {
+        if (!err){
+            const query = `delete from task_user where user_id = ${user_id} and task_id = ${task_id};`
+            await new Promise((resolve, reject) => {
+                db.query(query, (err, rows, fields) => {
+                    if (!err){
+                        console.log("Removed the task from the set of assigned tasks.")
+                        resolve()
+                    }else{
+                        reject()
+                        console.log(err);
+                    }
+                })
+            })
+            res.send(`A user has abandoned the task: ${task_id}. Now it has the status 'created'.`)
+        }else{
+            console.log(err);
+        }
+    })
 })
 
 router.get("/projects", (req, res) => {

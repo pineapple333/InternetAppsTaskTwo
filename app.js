@@ -154,6 +154,7 @@ app.use('/reservation', require('./routes/reservation'))
 app.use('/admin', require('./routes/admin'))
 app.use('/emailConfirmation', require('./routes/emailConfirmation'))
 app.use('/manager', require('./routes/manager'))
+app.use('/ba', require('./routes/ba'))
 
 const PORT = process.env.PORT || 5000;
 
