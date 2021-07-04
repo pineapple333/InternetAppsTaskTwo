@@ -104,3 +104,54 @@ app.get('/tasks', (req, res) => {
         }
     })
 })
+
+app.post('/add_task', (req, res) => {
+
+    if (typeof req.session.userId === 'undefined')
+        req.session.userId = 1
+
+    const contents = req.body.contents
+    const parent_id = req.body.parent_id // only one parent for each task is supported
+    const date_from = req.body.date_from
+    const date_to = req.body.date_to
+    const project_id = req.body.project_id
+
+    console.log(`Date from: ${date_from}. Date to: ${date_to}`)
+    
+    var db = req.app.get('db');
+
+    db.query(`select contents, date_to, date_from from task where id = ${parent_id};`, async (err, rows, fields) => {
+        if (!err){
+            if (rows.length !== 0 && typeof date_from !== 'undefined' && typeof date_to !== 'undefined' ){
+                // for each parent task check if new dates are valid
+                rows.forEach(async row => {
+                    console.log(`date from db: ${new Date(row.date_from).getTime()} date to db: ${new Date(date_to).getTime()}`)
+                    if (new Date(row.date_from).getTime() > new Date(date_from).getTime()){
+                        res.end("New date is earlier than the beggining of the parent task")
+                    }
+                    if (new Date(row.date_to).getTime() < new Date(date_to).getTime()){
+                        res.end("New date is later than the end of the parent task")
+                    }
+                });
+
+                const insert_query = `call insert_task('${contents}', '${date_from}', '${date_to}', ${parent_id}, ${project_id});`
+                await new Promise((resolve, reject) => {
+                    db.query(insert_query, async (err, rows, fields) => {
+                        if (!err){
+                            resolve()
+                        }else{
+                            reject()
+                            console.log(err);
+                        }
+                    })
+                })
+                res.end("Created a new task and a new relationship")
+            }else{
+                res.end(" There's no such parent task ...")
+            }
+        }else{
+            console.log(err)
+        }
+    })
+
+})
