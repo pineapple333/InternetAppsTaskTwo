@@ -77,7 +77,7 @@ router.get('/tasks', (req, res) => {
     var assigned_rows = []
 
     // db.query(`select parent.contents as parent, child.contents as child from task_relationship as tr left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id where parent.id in (select task_id from task_user where user_id = ${req.session.userId});`, (err, rows, fields) => {
-        db.query(`select child.id, parent.contents as parent, child.contents as child from task_relationship as tr left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id;`, async (err, rows, fields) => {
+        db.query(`;`, async (err, rows, fields) => {
         if (!err){
             tmp_list = []
             if (rows.length !== 0){
