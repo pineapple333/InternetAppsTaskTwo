@@ -13,56 +13,9 @@ const axios = require('axios')
 const stripe = require('stripe')(process.env.STRIPE_SECRET) 
 
 const bcrypt = require('bcrypt')
+const bodyParser = require('body-parser')
+const cookiePraser = require('cookie-parser')
 const saltRounds = 10
-
-
-// const initializePassport = require('./config/passport')
-// initializePassport(passport, 
-//     email => { 
-//         return new Promise((resolve, reject) => {
-//             var db = app.get('db')
-//             db.query("SELECT u.id, u.name, u.surname, u.email, u.pwd FROM user as u WHERE u.email=?", [email], (err, rows, fields) => {
-//                 if (!err){
-//                     if (rows.length !== 0){
-//                         resolve( { 
-//                             id: rows[0].id, 
-//                             name: rows[0].name, 
-//                             sname: rows[0].surname,
-//                             email: rows[0].email,  
-//                             pwd: rows[0].pwd
-//                         } )
-//                     }else{
-//                         reject(null)
-//                     }
-//                 }
-//                 else
-//                     console.log(err);
-//             });
-//         })
-//     },
-//     id => { 
-//         return new Promise((resolve, reject) => {
-//             var db = app.get('db')
-//             db.query("SELECT u.id, u.name, u.surname, u.email, u.pwd FROM user as u WHERE u.email=?", [id], (err, rows, fields) => {
-//                 if (!err){
-//                     if (rows.length !== 0){
-//                         resolve( { 
-//                             id: rows[0].id, 
-//                             name: rows[0].name, 
-//                             sname: rows[0].surname,
-//                             email: rows[0].email,  
-//                             pwd: rows[0].pwd
-//                         } )
-//                     }else{
-//                         reject(null)
-//                     }
-//                 }
-//                 else
-//                     console.log(err);
-//             });
-//         })
-//     }
-// )
 
 const app = express();
 
@@ -117,10 +70,11 @@ app.use(express.json())
 
 // Express session middleware
 app.use(session({
-    name: process.env.SESSION_NAME,
+    name: 'sid',
     resave: false,
     saveUninitialized: false,
-    secret: process.env.SESSION_SECRET,
+
+    secret: 'secret',
     cookie:{
         maxAge: Date.now() + (30 * 86400 * 1000),
         sameSite: true,
@@ -128,6 +82,7 @@ app.use(session({
         secure: false
     }
 }))
+
 // app.use(session({
 //     secret: process.env.SESSION_SECRET,
 //     resave: 'false',
@@ -163,55 +118,3 @@ app.use('/ba', require('./routes/ba'))
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT);
-
-app.post("/register",redirectLogin, async (req,res) => {
-
-    var db = req.app.get('db')
-
-    const email = req.body.email;
-    const pwd = req.body.pwd;
-    const role = req.body.role;
-    const name = req.body.name;
-
-    bcrypt.hash(pwd, saltRounds, (err, pwd_hash) => {
-
-        if (err){
-            res.send({message: "There hash been an error while encrypting !!!"})
-        }
-        const query = `call insert_user('${email}', '${pwd_hash}', '${role}', ${name});`
-        db.query(query, async (err, rows, fields) => {
-        })
-    })
-
-})
-
-app.post("/login",redirectLogin, async (req,res) => {
-
-    var db = req.app.get('db')
-
-    const email = req.body.email;
-    const pwd = req.body.pwd;
-
-    const query = `select from user_login where email = ${email}`;
-
-    db.query(query, async (err, rows, fields) => {
-        if(!err){
-            res.send({err})
-        }
-
-        if(res.length > 0){
-            bcrypt.compare(pwd, rows[0].pwd, (err, resp) => {
-                if (err)
-                res.send(res.send({err}))
-                if (resp)
-                    res.send(res.send("You are logged in !!!"))
-                else{
-                    res.send({message: "Wrong email/password combination !!!"})
-                }
-            })
-        }else{
-            res.send({message: "The user doesn't exist !!!"})
-        }
-    })
-    
-})

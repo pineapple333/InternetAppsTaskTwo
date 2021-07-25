@@ -95,6 +95,7 @@ router.get('/tasks', (req, res) => {
                     })
                 })
 
+                console.log(`Sending the response...`)
                 res.send({
                     all_tasks: buildHierarchy(rows), // all tasks there are
                     assigned: assigned_rows // tasks assigned to this particular person
