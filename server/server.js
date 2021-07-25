@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const mysql = require('mysql');
 
 const app = express();
 
@@ -21,6 +22,26 @@ const db = require("./app/models");
 const Role = db.role;
 
 db.sequelize.sync();
+
+// Create connection
+const mdb = mysql.createConnection({
+    host: 'localhost',
+    user: 'webuser',
+    password: '1234',
+    database: 'groupbase'
+});
+
+// Connect
+mdb.connect((err) => {
+    if (err){
+        throw err;
+    }else{
+        console.log("MySQL connected.");
+    }
+});
+
+app.set('mdb', mdb);
+
 // force: true will drop the table if it already exists
 // db.sequelize.sync({force: true}).then(() => {
 //   console.log('Drop and Resync Database with { force: true }');

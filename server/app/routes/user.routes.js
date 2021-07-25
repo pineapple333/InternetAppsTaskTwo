@@ -19,14 +19,26 @@ module.exports = function(app) {
   );
 
   app.get(
-    "/api/test/mod",
+    "/api/test/manager",
     [authJwt.verifyToken, authJwt.isModerator],
     controller.moderatorBoard
   );
 
   app.get(
-    "/api/test/admin",
+    "/api/test/ba",
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.adminBoard
   );
+
+  app.get(
+    "/api/test/executor",
+    [authJwt.verifyToken, authJwt.isAdmin],
+    controller.adminBoard
+  );
+
+  app.get(
+    "/api/tasks/:userId",
+    controller.allTasks
+  );
+
 };
