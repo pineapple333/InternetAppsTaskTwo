@@ -32,23 +32,23 @@ app.use(cors(corsOptions));
 // const cred = require('./config/keys');
 
 // Create connection
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'webuser',
-    password: '1234',
-    database: 'groupbase'
-});
+// const db = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'webuser',
+//     password: '1234',
+//     database: 'groupbase'
+// });
 
 // Connect
-db.connect((err) => {
-    if (err){
-        throw err;
-    }else{
-        console.log("MySQL connected.");
-    }
-});
+// db.connect((err) => {
+//     if (err){
+//         throw err;
+//     }else{
+//         console.log("MySQL connected.");
+//     }
+// });
 
-app.set('db', db);
+// app.set('db', db);
 
 app.use((req, res, next)=>{
     res.locals.moment = moment;
