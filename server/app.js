@@ -10,7 +10,7 @@ const session = require('express-session')
 const passport = require('passport')
 const moment = require('moment')
 const axios = require('axios')
-const stripe = require('stripe')(process.env.STRIPE_SECRET) 
+const cors = require("cors");
 
 const bcrypt = require('bcrypt')
 const bodyParser = require('body-parser')
@@ -18,6 +18,12 @@ const cookiePraser = require('cookie-parser')
 const saltRounds = 10
 
 const app = express();
+
+var corsOptions = {
+    origin: "http://localhost:5000"
+};
+
+app.use(cors(corsOptions));
 
 // Passport config
 // require("./config/passport")(passport)
@@ -114,6 +120,9 @@ app.use('/admin', require('./routes/admin'))
 app.use('/emailConfirmation', require('./routes/emailConfirmation'))
 app.use('/manager', require('./routes/manager'))
 app.use('/ba', require('./routes/ba'))
+// routes
+require('./routes/auth.routes')(app);
+require('./routes/user.routes')(app);
 
 const PORT = process.env.PORT || 5000;
 
