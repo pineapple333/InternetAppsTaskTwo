@@ -369,14 +369,24 @@ exports.deleteProject = async (req, res) => {
                 resolve()
               }else{
                 console.log(outer_err)
-                res.json({message: "There are no connected tasks"})
+                res.json({message: "Problems while deleteting the project record itself"})
                 reject()
             }
         })
     })
     res.json({message: "All cleaned up"})
   }else{
-    console.log(outer_err)
-    res.json({message: "Didn't even start cleaning up"})
+    await new Promise((resolve, reject) => {
+      mdb.query(`delete from _project where id = '${proj_id}';`, async (outer_err, outer_rows, fields) => {
+        if (!outer_err){
+                resolve()
+              }else{
+                console.log(outer_err)
+                res.json({message: "Problems while deleteting the project record itself"})
+                reject()
+            }
+        })
+    })
+    res.json({message: "No connected tasks. Only project record was deleted"})
   }
 }
