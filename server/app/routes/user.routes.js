@@ -65,4 +65,9 @@ module.exports = function(app) {
     "/api/project",
     controller.addProject 
   );
+
+  app.delete(
+    "/api/project/:proj_id",
+    controller.deleteProject 
+  );
 };
