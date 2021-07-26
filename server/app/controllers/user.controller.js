@@ -74,14 +74,25 @@ exports.allTasks = (req, res) => {
   var users_task = []
   var task_status = []
 
+  var query = ""
+
   // console.log(`${req.params.userId}`)
 
   // mdb.query(`select parent.contents as parent, child.contents as child from task_relationship as tr left join task as child on tr.child_task = child.id left join task as parent on tr.parent_task = parent.id where parent.id in (select task_id from task_user where user_id = ${req.session.userId});`, (err, rows, fields) => {   
-  mdb.query(`select task_id, users.id as user_id, task.contents, users.username 
-    from task_user 
-    inner join task on task_user.task_id = task.id 
-    inner join users on task_user.user_id = users.id
-    where users.id = ${req.params.userId};`, async (err, rows, fields) => {
+  
+  if (typeof req.params.userId === 'undefined')
+    query = `select task_id, users.id as user_id, task.contents, users.username 
+      from task_user 
+      inner join task on task_user.task_id = task.id 
+      inner join users on task_user.user_id = users.id`
+  else
+    query = `select task_id, users.id as user_id, task.contents, users.username 
+      from task_user 
+      inner join task on task_user.task_id = task.id 
+      inner join users on task_user.user_id = users.id
+      where users.id = ${req.params.userId};`
+
+  mdb.query(query, async (err, rows, fields) => {
       if (!err){
           tmp_list = []
           if (rows.length !== 0){
