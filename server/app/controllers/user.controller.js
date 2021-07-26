@@ -59,11 +59,21 @@ function buildHierarchy(rows, project_task, task_status){
     }
   }
 
-  // group tasks by projects
+  // change to an appropriete format
 
-  console.log(projects)
+  new_projects = []
 
-  return projects
+  for (const [key, value] of Object.entries(projects)) {
+    //Do stuff where key would be 0 and value would be the object
+    new_projects.push(
+      {
+        name: key,
+        tasks: value
+      }
+    )
+  }
+
+  return new_projects
 }
 
 exports.allTasks = (req, res) => {
@@ -97,14 +107,11 @@ exports.allTasks = (req, res) => {
           tmp_list = []
           if (rows.length !== 0){
 
-            console.log(rows)
-
             await new Promise((resolve, reject) => {
                 mdb.query(`select _project.id, _project.name as name, task_id
                 from project_task
                 inner join _project on project_task.project_id = _project.id;`, (err, rows, fields) => {
                     if (!err){
-                        console.log("Read all projects and tasks assigned to them")
                         project_task = rows
                         resolve()
                     }else{
@@ -141,15 +148,11 @@ exports.allTasks = (req, res) => {
                   }
               })
             })
-
-            // console.log(rows)
             
-            mdb.end()
-            
-            res.send({
+            res.json({
                 all_tasks: buildHierarchy(rows, project_task, task_status)
-            })
-            res.end()
+            }).end("The end")
+            // res.end()
             // console.log(`${rows.length}`)
             // res.return('users/index', {
             //     contents: `${rows}`
