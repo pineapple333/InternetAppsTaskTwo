@@ -48,13 +48,15 @@ function buildHierarchy(rows, project_task, task_status){
       projects[new_project_task[rows[i].task_id]].push({
         name: rows[i].contents,
         dev_name: rows[i].username,
-        status: new_task_status[rows[i].task_id]
+        status: new_task_status[rows[i].task_id],
+        taskid: rows[i].task_id
       })
     }else{
       projects[new_project_task[rows[i].task_id]] =[{
         name: rows[i].contents,
         dev_name: rows[i].username,
-        status: new_task_status[rows[i].task_id]
+        status: new_task_status[rows[i].task_id],
+        taskid: rows[i].task_id
       }]
     }
   }
@@ -151,7 +153,7 @@ exports.allTasks = (req, res) => {
             
             res.json({
                 all_tasks: buildHierarchy(rows, project_task, task_status)
-            }).end("The end")
+            })
             // res.end()
             // console.log(`${rows.length}`)
             // res.return('users/index', {
