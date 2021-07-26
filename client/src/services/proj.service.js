@@ -15,13 +15,11 @@ class ProjService {
       });
   }
   
-  addProject(name, baid){
+  addProject(name){
 	  const user = AuthService.getCurrentUser();
 	  const userid = user.id;
 	  return axios.post(API_URL + "project", {
-		  userid,
-		  name,
-		  baid
+		  name: name
 		  })
   }
   
@@ -34,8 +32,8 @@ class ProjService {
   
   addDev (taskid, devid){
 	  return axios.post(API_URL + "developer", {
-		  taskid,
-		  devid
+		  task_id: taskid,
+		  user_id: devid
 	  })
   }
   
