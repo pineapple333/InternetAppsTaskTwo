@@ -5,19 +5,28 @@ const API_URL = "http://localhost:8080/api/";
 class ProjService {
   getProjects(){
 	  const user = AuthService.getCurrentUser();
-	  return axios.get(API_URL + "projects/" + user.id)
+	  axios.get(API_URL + "tasks/" + user.id)
 	  .then(response => {
-        if (response.data.accessToken) {
           localStorage.setItem("projects", JSON.stringify(response.data));
-        }
 
         return response.data;
       });
+	  var wynik = JSON.parse(localStorage.getItem("projects"));
+	  return wynik;
+  }
+  
+  getAllProjects(){
+	  axios.get(API_URL + "tasks")
+	  .then(response => {
+          localStorage.setItem("projects", JSON.stringify(response.data));
+
+        return response.data;
+      });
+	  var wynik = JSON.parse(localStorage.getItem("projects"));
+	  return wynik;
   }
   
   addProject(name){
-	  const user = AuthService.getCurrentUser();
-	  const userid = user.id;
 	  return axios.post(API_URL + "project", {
 		  name: name
 		  })
@@ -25,8 +34,8 @@ class ProjService {
   
   addTask (projid, name){
 	  return axios.post(API_URL + "task", {
-		  projid,
-		  name
+		  proj_id: projid,
+		  name: name
 	  })
   }
   

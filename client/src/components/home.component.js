@@ -17,8 +17,13 @@ export default class Home extends Component {
 
   render() {
 	  const user = AuthService.getCurrentUser();
-	//  const projects = ProjService.getProjects();
-	  const projects = 
+	  if(user.roles[0] != "ROLE_EXECUTOR"){
+		var projects = ProjService.getAllProjects().all_tasks;
+	  }
+	  if(user.roles[0] == "ROLE_EXECUTOR"){
+		var projects = ProjService.getProjects().all_tasks;
+	  }
+	  const projects2 = 
 	  [
 		{"name":"projekt1",
 		"tasks": [
@@ -51,16 +56,16 @@ export default class Home extends Component {
 			"status":2,
 			"dev_name":null}]
 		}]
-		  
+		if(projects != undefined){
 	  for(var i = 0; i < projects.length; i++) {
 		  for(var j =0; j < projects[i].tasks.length; j++) {
-			  if(projects[i].tasks[j].status == 1){
+			  if(projects[i].tasks[j].status == "created"){
 				  projects[i].tasks[j].status = "Nieprzyznane"
 			  }
-			  if(projects[i].tasks[j].status == 2){
+			  if(projects[i].tasks[j].status == "assigned"){
 				  projects[i].tasks[j].status = "W trakcie"
 			  }
-			  if(projects[i].tasks[j].status == 6){
+			  if(projects[i].tasks[j].status == "done"){
 				  projects[i].tasks[j].status = "Wykonane"
 			  }
 		  }
@@ -121,6 +126,13 @@ export default class Home extends Component {
 			);
 		}
 		}
+		} else {
+			return (
+			<div>
+			Nie bieżesz obecnie udziału w żadnym projekcie.
+			</div>
+			);
+		}
   }
 }
 
@@ -137,9 +149,9 @@ class Node extends React.Component {
     event.preventDefault();
     ProjService.addDev(this.state.idvar,this.state.formvar);
   } 
-  mySubmitHandler2 = (event) => {
+  mySubmitHandler3 = (event) => {
     event.preventDefault();
-    ProjService.addDev(this.state.idvar,this.state.formvar);
+    ProjService.addTask(this.state.idvar,this.state.formvar);
   }   
 
   render() {      
@@ -169,12 +181,12 @@ class Node extends React.Component {
 					</form>
 			}
 			{(user.roles == "ROLE_MANAGER" && this.props.node.tasks) &&
-				<button onclick="finishProject(this.props.node.taskid)">
+				<button onclick="finishProject(this.props.node.projectid)">
 				Zakończ projekt
 				</button>
 			}
 			{(user.roles == "ROLE_BA" && this.props.node.tasks) &&
-				<form onSubmit={this.state.idvar=this.props.node.taskid,this.mySubmitHandler3}>
+				<form onSubmit={this.state.idvar=this.props.node.projectid,this.mySubmitHandler3}>
 					<label>
 						Nazwa zadania:<br/>
 						<input type="text" onChange={this.myChangeHandler}/>
