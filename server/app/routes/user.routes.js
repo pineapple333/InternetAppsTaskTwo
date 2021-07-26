@@ -55,4 +55,9 @@ module.exports = function(app) {
     "/api/developer",
     controller.addTaskToUser  
   );
+
+  app.put(
+    "/api/task/:task_id",
+    controller.completeTask  
+  );
 };

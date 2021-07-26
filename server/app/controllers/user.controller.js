@@ -217,7 +217,7 @@ exports.addTaskToUser = async (req, res) => {
 
           // set the status of a task
           await new Promise((resolve, reject) => {
-              mdb.query(`insert into task_status (task_id, status_id) values (${task_id}, 2);`, (inner_err, inner_rows, fields) => {
+              mdb.query(`update task_status set status_id = 2 where task_id = ${task_id};`, (inner_err, inner_rows, fields) => {
                   if (!inner_err){
                       resolve()
                   }else{
@@ -232,6 +232,24 @@ exports.addTaskToUser = async (req, res) => {
           res.json({message: "This task has been assigned to this user."})
         }
     }
-})
+  })
+}
 
+exports.completeTask = async (req, res) => {
+
+  const mdb = req.app.get('mdb')
+  
+  const task_id = req.params.task_id
+
+  console.log(`Task id ${task_id}`)
+
+  const query = `update task_status set status_id = 6 where task_id = ${task_id};`
+  mdb.query(query, async (err, rows, fields) => {
+    if (!err){
+      res.json({message: "The task has been completed"})
+    }else{
+      console.log(err)
+      res.json({message: "For some reason couldn't make the task completed"})
+    }
+  })
 }

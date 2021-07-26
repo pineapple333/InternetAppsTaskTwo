@@ -13,6 +13,7 @@ create procedure insert_task
         --     values (@last_id, in_parent_id); 
         insert into project_task (project_id, task_id) 
             values (in_project_id, @last_id); 
+        insert into task_status(task_id, status_id) values (@last_id, 1);
     end;//
 delimiter ;
 
