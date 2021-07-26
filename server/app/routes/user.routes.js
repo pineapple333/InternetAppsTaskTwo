@@ -60,4 +60,9 @@ module.exports = function(app) {
     "/api/task/:task_id",
     controller.completeTask  
   );
+
+  app.post(
+    "/api/project",
+    controller.addProject 
+  );
 };

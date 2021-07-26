@@ -241,8 +241,6 @@ exports.completeTask = async (req, res) => {
   
   const task_id = req.params.task_id
 
-  console.log(`Task id ${task_id}`)
-
   const query = `update task_status set status_id = 6 where task_id = ${task_id};`
   mdb.query(query, async (err, rows, fields) => {
     if (!err){
@@ -250,6 +248,36 @@ exports.completeTask = async (req, res) => {
     }else{
       console.log(err)
       res.json({message: "For some reason couldn't make the task completed"})
+    }
+  })
+}
+
+exports.addProject = async (req, res) => {
+
+  const mdb = req.app.get('mdb')
+  
+  const proj_name = req.body.name
+
+  mdb.query(`select * from _project where name = '${proj_name}';`, async (outer_err, outer_rows, fields) => {
+    if (!outer_err){
+        if (outer_rows.length === 0){
+          await new Promise((resolve, reject) => {
+              mdb.query(`insert into _project (name) values ('${proj_name}');`, (inner_err, inner_rows, fields) => {
+                  if (!inner_err){
+                      resolve()
+                  }else{
+                      console.log(inner_err);
+                      reject()
+                  }
+              })
+          })
+          res.json({message: "The new project has been created"})
+        }else{
+          res.json({message: "This project already exists."})
+        }
+    }else{
+      console.log(outer_err)
+      res.json({message: "There's been an error"})
     }
   })
 }
