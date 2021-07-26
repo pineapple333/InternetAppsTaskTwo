@@ -40,6 +40,7 @@ function buildHierarchy(rows, project_task, task_status){
   for (let i = 0; i < project_task.length; i++){
     if (project_task[i].id in new_project_task){
       new_project_task [project_task[i].task_id].push(project_task[i].name)
+      proj_name_id [project_task[i].name] = project_task[i].id
     }
     else{
       new_project_task [project_task[i].task_id] = [project_task[i].name]
@@ -190,4 +191,34 @@ exports.addTask = async (req, res) => {
         res.json({message:"The task has NOT been associated with the project. There's been an error."})
       }
   })
+}
+
+exports.addTaskToUser = async (req, res) => {
+
+  const mdb = req.app.get('mdb')
+  
+  const task_id = req.body.task_id
+  const user_id = req.body.user_id
+
+  // const insert_query = `call insert_task('${contents}', ${project_id});`
+  mdb.query(`select * from task_user where user_id = ${user_id} and task_id = ${task_id};`, async (outer_err, outer_rows, fields) => {
+    if (!outer_err){
+        if (outer_rows.length === 0){
+            await new Promise((resolve, reject) => {
+                mdb.query(`insert into task_user (user_id, task_id) values (${user_id}, ${task_id});`, (inner_err, inner_rows, fields) => {
+                    if (!inner_err){
+                        resolve()
+                    }else{
+                        console.log(err);
+                        reject()
+                    }
+                })
+            })
+            res.json({message: "Assigned the task to the user"})
+        }else{
+            res.json({message: "This task has been assigned to this user."})
+        }
+    }
+})
+
 }
