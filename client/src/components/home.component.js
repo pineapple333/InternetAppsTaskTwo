@@ -86,7 +86,7 @@ export default class Home extends Component {
 			return (
 			<div className="container">
 			<header className="jumbotron">	
-				<h3>Witaj, Analityk</h3>
+			Twoje projekty:<br/><br/>
 			</header>
 				{nodes}
 			</div>
@@ -96,7 +96,6 @@ export default class Home extends Component {
 		  return (
 			<div className="container">
 			<header className="jumbotron">	
-				<h3>Witaj, Menadżer</h3>
 				<br/>
 				Dodaj nowy projekt:
 				<br/>
@@ -118,9 +117,7 @@ export default class Home extends Component {
 		if(user.roles == "ROLE_EXECUTOR"){
 		  return (
 			<div className="container">
-			<header className="jumbotron">	
-				<h3>Witaj, Wykonawca</h3>
-			</header>
+			Twoje projekty:<br/><br/>
 				{nodes}
 			</div>
 			);
@@ -181,7 +178,7 @@ class Node extends React.Component {
 					</form>
 			}
 			{(user.roles == "ROLE_MANAGER" && this.props.node.tasks) &&
-				<button onclick="finishProject(this.props.node.projectid)">
+				<button onClick={() => {ProjService.finishProject(this.props.node.projectid)}}>
 				Zakończ projekt
 				</button>
 			}
@@ -195,7 +192,7 @@ class Node extends React.Component {
 					</form>
 			}
 			{(user.roles == "ROLE_EXECUTOR" && this.props.node.status == "W trakcie") &&
-				<button onclick="finishTask(this.props.node.taskid)">
+				<button onClick={() => {ProjService.finishTask(this.props.node.taskid)}}>
 				Zakończ zadanie
 				</button>	
 			}				
