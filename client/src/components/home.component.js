@@ -3,11 +3,73 @@ import AuthService from "../services/auth.service";
 import ProjService from "../services/proj.service";
 
 export default class Home extends Component {
-  
+  constructor(props) {
+    super(props);
+    this.state = { project_name: '' };
+  }
+  mySubmitHandler = (event) => {
+    event.preventDefault();
+    ProjService.addProject(this.state.project_name);
+  }
+  myChangeHandler = (event) => {
+    this.setState({project_name: event.target.value});
+  }
 
   render() {
 	  const user = AuthService.getCurrentUser();
-	  const projects = ProjService.getProjects();
+	//  const projects = ProjService.getProjects();
+	  const projects = 
+	  [
+		{"name":"projekt1",
+		"tasks": [
+			{"name":"zadanie1",
+			"status":1,
+			"dev_name":null},
+			{"name":"zadanie2",
+			"status":2,
+			"dev_name":null},
+			{"name":"zadanie3",
+			"status":2,
+			"dev_name":null}]},
+		{"name":"projekt2",
+		"tasks": [
+			{"name":"zadaniea",
+			"status":1,
+			"dev_name":null},
+			{"name":"zadanieb",
+			"status":1,
+			"dev_name":null}]},
+		{"name":"projekt3",
+		"tasks": [
+			{"name":"zadanie1",
+			"status":1,
+			"dev_name":null},
+			{"name":"zadanie2",
+			"status":2,
+			"dev_name":null},
+			{"name":"zadanie3",
+			"status":2,
+			"dev_name":null}]
+		}]
+		  
+	  for(var i = 0; i < projects.length; i++) {
+		  for(var j =0; j < projects[i].tasks.length; j++) {
+			  if(projects[i].tasks[j].status == 1){
+				  projects[i].tasks[j].status = "Nieprzyznane"
+			  }
+			  if(projects[i].tasks[j].status == 2){
+				  projects[i].tasks[j].status = "W trakcie"
+			  }
+			  if(projects[i].tasks[j].status == 6){
+				  projects[i].tasks[j].status = "Wykonane"
+			  }
+		  }
+	  }
+	  let nodes = projects.map(function(project) {
+		  return (
+			<Node node={project} children={project.tasks} />
+			);
+	  });
 		if(!user){
 			return(
 			<div>
@@ -21,6 +83,7 @@ export default class Home extends Component {
 			<header className="jumbotron">	
 				<h3>Witaj, Analityk</h3>
 			</header>
+				{nodes}
 			</div>
 			);
 		}
@@ -29,7 +92,21 @@ export default class Home extends Component {
 			<div className="container">
 			<header className="jumbotron">	
 				<h3>Witaj, Menadżer</h3>
+				<br/>
+				Dodaj nowy projekt:
+				<br/>
+				<form onSubmit={this.mySubmitHandler}>
+					<label>
+						Nazwa projektu:<br/>
+						<input type="text" onChange={this.myChangeHandler}/>
+					</label>
+						<input type="submit" value="Wyślij" />
+					</form>
+			<br/>
+			<br/>
 			</header>
+			Twoje projekty:<br/><br/>
+				{nodes}
 			</div>
 			);
 		}
@@ -39,9 +116,82 @@ export default class Home extends Component {
 			<header className="jumbotron">	
 				<h3>Witaj, Wykonawca</h3>
 			</header>
+				{nodes}
 			</div>
 			);
 		}
 		}
+  }
+}
+
+class Node extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { formvar: '',
+					idvar: ''};
+  }
+  myChangeHandler = (event) => {
+    this.setState({formvar: event.target.value});
+  }	
+  mySubmitHandler2 = (event) => {
+    event.preventDefault();
+    ProjService.addDev(this.state.idvar,this.state.formvar);
+  } 
+  mySubmitHandler2 = (event) => {
+    event.preventDefault();
+    ProjService.addDev(this.state.idvar,this.state.formvar);
+  }   
+
+  render() {      
+	const user = AuthService.getCurrentUser();
+    let childnodes = null;
+    // the Node component calls itself if there are children
+    if(this.props.children) {      
+      childnodes = this.props.children.map(function(childnode) {
+       return (
+         <Node node={childnode} children={childnode.tasks} />
+       );
+     });
+    }
+
+    // return our list element
+    // display children if there are any
+    return (
+      <li key={this.props.node.name}>      
+        <span>{this.props.node.name}	{this.props.node.status}
+			{(user.roles == "ROLE_MANAGER" &&this.props.node.status == "Nieprzyznane") &&
+					<form onSubmit={this.state.idvar=this.props.node.taskid,this.mySubmitHandler2}>
+					<label>
+						ID wykonwacy:<br/>
+						<input type="text" onChange={this.myChangeHandler}/>
+					</label>
+						<input type="submit" value="Dodaj wykonwace" />
+					</form>
+			}
+			{(user.roles == "ROLE_MANAGER" && this.props.node.tasks) &&
+				<button onclick="finishProject(this.props.node.taskid)">
+				Zakończ projekt
+				</button>
+			}
+			{(user.roles == "ROLE_BA" && this.props.node.tasks) &&
+				<form onSubmit={this.state.idvar=this.props.node.taskid,this.mySubmitHandler3}>
+					<label>
+						Nazwa zadania:<br/>
+						<input type="text" onChange={this.myChangeHandler}/>
+					</label>
+						<input type="submit" value="Dodaj zadanie" />
+					</form>
+			}
+			{(user.roles == "ROLE_EXECUTOR" && this.props.node.status == "W trakcie") &&
+				<button onclick="finishTask(this.props.node.taskid)">
+				Zakończ zadanie
+				</button>	
+			}				
+		</span>
+        { childnodes ?
+          <ul>{childnodes}</ul>
+        : null }
+      </li>
+    );
   }
 }
