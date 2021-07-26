@@ -171,3 +171,23 @@ exports.allTasks = (req, res) => {
       }
   })
 };
+
+exports.addTask = async (req, res) => {
+
+  const mdb = req.app.get('mdb')
+  
+  const contents = req.body.name
+  const project_id = req.body.proj_id
+
+  console.log(`Adding a single task: ${contents} ${project_id}`)
+
+  const insert_query = `call insert_task('${contents}', ${project_id});`
+  mdb.query(insert_query, (err, rows, fields) => {
+      if (!err){
+          res.json({message:"The task has been associated with the project"})
+      }else{
+        console.log(err)
+        res.json({message:"The task has NOT been associated with the project. There's been an error."})
+      }
+  })
+}

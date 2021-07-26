@@ -46,4 +46,9 @@ module.exports = function(app) {
     controller.allTasks
   );
 
+  app.post(
+    "/api/task",
+    controller.addTask
+  );
+
 };
