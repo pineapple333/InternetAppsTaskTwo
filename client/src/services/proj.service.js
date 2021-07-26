@@ -17,8 +17,9 @@ class ProjService {
   
   addProject(name, baid){
 	  const user = AuthService.getCurrentUser();
+	  const userid = user.id;
 	  return axios.post(API_URL + "project", {
-		  user.id,
+		  userid,
 		  name,
 		  baid
 		  })
