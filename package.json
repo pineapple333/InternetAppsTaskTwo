@@ -1,0 +1,52 @@
+{
+  "name": "internetappsfirstproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/Vysh_Yev/internetappsfirstproject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/Vysh_Yev/internetappsfirstproject/issues"
+  },
+  "homepage": "https://gitlab.com/Vysh_Yev/internetappsfirstproject#readme",
+  "dependencies": {
+    "@mysql/xdevapi": "8.0.23",
+    "axios": "^0.21.1",
+    "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "express-ejs-layouts": "^2.5.0",
+    "express-flash": "0.0.2",
+    "express-session": "^1.17.2",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.1",
+    "mongoose": "^5.12.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.2.5",
+    "nodemailer": "^6.5.0",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "randomstring": "^1.1.5",
+    "sequelize": "^6.6.5",
+    "stripe": "^8.145.0",
+    "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
