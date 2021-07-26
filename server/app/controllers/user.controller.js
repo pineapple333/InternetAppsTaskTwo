@@ -306,51 +306,77 @@ exports.deleteProject = async (req, res) => {
   })
 
   console.log(connected_tasks)
-
-  mdb.query(`delete from _project where id = '${proj_id}';`, async (outer_err, outer_rows, fields) => {
-    if (!outer_err){
-        if (connected_tasks.length !== 0){
-          await new Promise((resolve, reject) => {
-              mdb.query(`delete from tasks where id in (?);`, [connected_tasks], (inner_err, inner_rows, fields) => {
-                  if (!inner_err){
-                      resolve()
-                  }else{
-                      console.log(inner_err);
-                      res.json({message: "There was an error while deleteting all connected tasks"})
-                      reject()
-                  }
-              })
-          })
-          await new Promise((resolve, reject) => {
-              mdb.query(`delete from task_user where task_id in (?);`, [connected_tasks], (inner_err, inner_rows, fields) => {
-                  if (!inner_err){
-                      resolve()
-                  }else{
-                      console.log(inner_err);
-                      res.json({message: "There was an error while deleating all users <-> task relationships"})
-                      reject()
-                  }
-              })
-          })
-          await new Promise((resolve, reject) => {
-              mdb.query(`delete from task_status where task_id in (?);`, [connected_tasks], (inner_err, inner_rows, fields) => {
-                  if (!inner_err){
-                      resolve()
-                  }else{
-                      console.log(inner_err);
-                      res.json({message: "There was an error while deleating all task <-> status relationships"})
-                      reject()
-                  }
-              })
-          })
-          res.json({message: "All cleaned up"})
-        }else{
-          res.json({message: "There are no connected tasks"})
-        }
-    }else{
-      console.log(outer_err)
-      res.json({message: "Didn't even start cleaning up"})
-    }
-  })
-
+  
+  if (connected_tasks.length !== 0){
+    await new Promise((resolve, reject) => {
+        mdb.query(`delete from task_user where task_id in (?);`, [connected_tasks], (inner_err, inner_rows, fields) => {
+            if (!inner_err){
+                resolve()
+            }else{
+                console.log(inner_err);
+                res.json({message: "There was an error while deleating all users <-> task relationships"})
+                reject()
+            }
+        })
+    })
+    await new Promise((resolve, reject) => {
+        mdb.query(`delete from task_status where task_id in (?);`, [connected_tasks], (inner_err, inner_rows, fields) => {
+            if (!inner_err){
+                resolve()
+            }else{
+                console.log(inner_err);
+                res.json({message: "There was an error while deleating all task <-> status relationships"})
+                reject()
+            }
+        })
+    })
+    await new Promise((resolve, reject) => {
+        mdb.query(`delete from project_task where project_id = ${proj_id};`, [connected_tasks], (inner_err, inner_rows, fields) => {
+            if (!inner_err){
+                resolve()
+            }else{
+                console.log(inner_err);
+                res.json({message: "There was an error while deleating all task <-> status relationships"})
+                reject()
+            }
+        })
+    })
+    // await new Promise((resolve, reject) => {
+    //     mdb.query(`delete from task_relationship where parent_id in (?) or child_id = ;`, [connected_tasks], (inner_err, inner_rows, fields) => {
+    //         if (!inner_err){
+    //             resolve()
+    //         }else{
+    //             console.log(inner_err);
+    //             res.json({message: "There was an error while deleating all task <-> status relationships"})
+    //             reject()
+    //         }
+    //     })
+    // })
+      await new Promise((resolve, reject) => {
+        mdb.query(`delete from task where id in (?);`, [connected_tasks], (inner_err, inner_rows, fields) => {
+            if (!inner_err){
+                resolve()
+            }else{
+                console.log(inner_err);
+                res.json({message: "There was an error while deleteting all connected tasks"})
+                reject()
+            }
+        })
+    })
+    await new Promise((resolve, reject) => {
+      mdb.query(`delete from _project where id = '${proj_id}';`, async (outer_err, outer_rows, fields) => {
+        if (!outer_err){
+                resolve()
+              }else{
+                console.log(outer_err)
+                res.json({message: "There are no connected tasks"})
+                reject()
+            }
+        })
+    })
+    res.json({message: "All cleaned up"})
+  }else{
+    console.log(outer_err)
+    res.json({message: "Didn't even start cleaning up"})
+  }
 }
