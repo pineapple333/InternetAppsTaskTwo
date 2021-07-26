@@ -36,11 +36,15 @@ function buildHierarchy(rows, project_task, task_status){
   }
 
   var new_project_task = {}
+  var proj_name_id = {}
   for (let i = 0; i < project_task.length; i++){
-    if (project_task[i].id in new_project_task)
+    if (project_task[i].id in new_project_task){
       new_project_task [project_task[i].task_id].push(project_task[i].name)
-    else
+    }
+    else{
       new_project_task [project_task[i].task_id] = [project_task[i].name]
+      proj_name_id [project_task[i].name] = project_task[i].id
+    }
   }
 
   for (let i = 0; i < rows.length; i++) {
@@ -70,6 +74,7 @@ function buildHierarchy(rows, project_task, task_status){
     new_projects.push(
       {
         name: key,
+        projectid: proj_name_id [key],
         tasks: value
       }
     )
