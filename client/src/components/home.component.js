@@ -127,20 +127,24 @@ export default class Home extends Component {
 class Node extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { project_name: '' };
+    this.state = { formvar: '',
+					idvar: ''};
   }
   myChangeHandler = (event) => {
-    this.setState({project_name: event.target.value});
+    this.setState({formvar: event.target.value});
   }	
   mySubmitHandler2 = (event) => {
     event.preventDefault();
-    ProjService.addDev(this.state.project_name);
-  }  	
+    ProjService.addDev(this.state.idvar,this.state.formvar);
+  } 
+  mySubmitHandler2 = (event) => {
+    event.preventDefault();
+    ProjService.addDev(this.state.idvar,this.state.formvar);
+  }   
 
   render() {      
 	const user = AuthService.getCurrentUser();
     let childnodes = null;
-	var taskid = null;
     // the Node component calls itself if there are children
     if(this.props.children) {      
       childnodes = this.props.children.map(function(childnode) {
@@ -156,12 +160,26 @@ class Node extends React.Component {
       <li key={this.props.node.name}>      
         <span>{this.props.node.name}	{this.props.node.status}
 			{(user.roles == "ROLE_MANAGER" &&this.props.node.status == "Nieprzyznane") &&
-					<form onSubmit={this.taksid=this.props.node.taskid,this.mySubmitHandler2}>
+					<form onSubmit={this.state.idvar=this.props.node.taskid,this.mySubmitHandler2}>
 					<label>
 						ID wykonwacy:<br/>
 						<input type="text" onChange={this.myChangeHandler}/>
 					</label>
-						<input type="submit" value="Wyślij" />
+						<input type="submit" value="Dodaj wykonwace" />
+					</form>
+			}
+			{(user.roles == "ROLE_MANAGER" && this.props.node.tasks) &&
+				<button onclick="finishProject(this.props.node.taskid)">
+				Zakończ projekt
+				</button>
+			}
+			{(user.roles == "ROLE_BA" && this.props.node.tasks) &&
+				<form onSubmit={this.state.idvar=this.props.node.taskid,this.mySubmitHandler3}>
+					<label>
+						Nazwa zadania:<br/>
+						<input type="text" onChange={this.myChangeHandler}/>
+					</label>
+						<input type="submit" value="Dodaj zadanie" />
 					</form>
 			}
 			{(user.roles == "ROLE_EXECUTOR" && this.props.node.status == "W trakcie") &&
