@@ -204,19 +204,32 @@ exports.addTaskToUser = async (req, res) => {
   mdb.query(`select * from task_user where user_id = ${user_id} and task_id = ${task_id};`, async (outer_err, outer_rows, fields) => {
     if (!outer_err){
         if (outer_rows.length === 0){
-            await new Promise((resolve, reject) => {
-                mdb.query(`insert into task_user (user_id, task_id) values (${user_id}, ${task_id});`, (inner_err, inner_rows, fields) => {
-                    if (!inner_err){
-                        resolve()
-                    }else{
-                        console.log(err);
-                        reject()
-                    }
-                })
-            })
-            res.json({message: "Assigned the task to the user"})
+          await new Promise((resolve, reject) => {
+              mdb.query(`insert into task_user (user_id, task_id) values (${user_id}, ${task_id});`, (inner_err, inner_rows, fields) => {
+                  if (!inner_err){
+                      resolve()
+                  }else{
+                      console.log(inner_err);
+                      reject()
+                  }
+              })
+          })
+
+          // set the status of a task
+          await new Promise((resolve, reject) => {
+              mdb.query(`insert into task_status (task_id, status_id) values (${task_id}, 2);`, (inner_err, inner_rows, fields) => {
+                  if (!inner_err){
+                      resolve()
+                  }else{
+                      console.log(inner_err);
+                      reject()
+                  }
+              })
+          })
+
+          res.json({message: "Assigned the task to the user"})
         }else{
-            res.json({message: "This task has been assigned to this user."})
+          res.json({message: "This task has been assigned to this user."})
         }
     }
 })
