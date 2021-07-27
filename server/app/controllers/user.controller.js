@@ -329,6 +329,7 @@ exports.addTaskToUser = async (req, res) => {
   mdb.query(`select * from task_user where task_id = ${task_id};`, async (outer_err, outer_rows, fields) => {
     if (!outer_err){
         if (outer_rows.length === 0){
+
           await new Promise((resolve, reject) => {
               mdb.query(`insert into task_user (user_id, task_id) values (${user_id}, ${task_id});`, (inner_err, inner_rows, fields) => {
                   if (!inner_err){
@@ -364,17 +365,17 @@ exports.addTaskToUser = async (req, res) => {
                     reject()
                 }
             })
+        })
 
-            // set the status of a task
-            await new Promise((resolve, reject) => {
-                mdb.query(`update task_status set status_id = 2 where task_id = ${task_id};`, (inner_err, inner_rows, fields) => {
-                    if (!inner_err){
-                        resolve()
-                    }else{
-                        console.log(inner_err);
-                        reject()
-                    }
-                })
+        // set the status of a task
+        await new Promise((resolve, reject) => {
+            mdb.query(`update task_status set status_id = 2 where task_id = ${task_id};`, (inner_err, inner_rows, fields) => {
+                if (!inner_err){
+                    resolve()
+                }else{
+                    console.log(inner_err);
+                    reject()
+                }
             })
         })
           res.json({message: "The task has been reassigned."})
