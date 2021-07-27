@@ -62,10 +62,19 @@ function buildIndependentHierarchy(rows, project_task, task_status, tasks, all_p
 
   // add the rest of the projects
 
+  new_projects = []
+
   for (let i = 0; i < all_projects.length; i++) {
     //Do stuff where key would be 0 and value would be the object
     if ( ! (all_projects[i].name in projects) ){
-      projects [all_projects[i].name] = []
+      // projects [all_projects[i].name] = []
+      new_projects.push(
+        {
+          name: all_projects[i].name,
+          projectid: all_projects[i].id,
+          tasks: []
+        }
+      )
     }
   }
 
@@ -85,8 +94,6 @@ function buildIndependentHierarchy(rows, project_task, task_status, tasks, all_p
   //   }
   // }
 
-  new_projects = []
-
   for (const [key, value] of Object.entries(projects)) {
     //Do stuff where key would be 0 and value would be the object
     new_projects.push(
@@ -97,6 +104,8 @@ function buildIndependentHierarchy(rows, project_task, task_status, tasks, all_p
       }
     )
   }
+
+
 
   return new_projects
 }
