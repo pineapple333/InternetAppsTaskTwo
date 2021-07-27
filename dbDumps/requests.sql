@@ -14,6 +14,7 @@ create procedure insert_task
         insert into project_task (project_id, task_id) 
             values (in_project_id, @last_id); 
         insert into task_status(task_id, status_id) values (@last_id, 1);
+        insert into task_user (user_id, task_id) values (1, @last_id);
     end;//
 delimiter ;
 

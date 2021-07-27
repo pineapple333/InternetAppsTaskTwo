@@ -38,36 +38,43 @@ module.exports = function(app) {
 
   app.get(
     "/api/tasks/:userId",
+    [authJwt.verifyToken],
     controller.allTasks
   );
 
   app.get(
     "/api/tasks",
+    [authJwt.verifyToken],
     controller.allTasks
   );
 
   app.post(
     "/api/task",
+    [authJwt.verifyToken],
     controller.addTask
   );
 
   app.post(
     "/api/developer",
+    [authJwt.verifyToken],
     controller.addTaskToUser  
   );
 
   app.put(
     "/api/task/:task_id",
+    [authJwt.verifyToken],
     controller.completeTask  
   );
 
   app.post(
     "/api/project",
+    [authJwt.verifyToken],
     controller.addProject 
   );
 
   app.delete(
     "/api/project/:proj_id",
+    [authJwt.verifyToken],
     controller.deleteProject 
   );
 };
