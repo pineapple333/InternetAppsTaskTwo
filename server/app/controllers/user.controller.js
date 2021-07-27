@@ -14,9 +14,76 @@ exports.moderatorBoard = (req, res) => {
   res.status(200).send("Moderator Content.");
 };
 
-function buildHierarchy(rows, project_task, task_status){
+function buildIndependentHierarchy(rows, project_task, task_status, all_projects){
 
   var projects = {}
+
+  var new_task_status = {}
+  for (let i = 0; i < task_status.length; i++){
+    new_task_status [task_status[i].task_id] = task_status[i].name
+  }
+
+  var new_project_task = {}
+  var proj_name_id = {}
+  for (let i = 0; i < project_task.length; i++){
+    if (project_task[i].id in new_project_task){
+      new_project_task [project_task[i].task_id].push(project_task[i].name)
+      proj_name_id [project_task[i].name] = project_task[i].id
+    }
+    else{
+      new_project_task [project_task[i].task_id] = [project_task[i].name]
+      proj_name_id [project_task[i].name] = project_task[i].id
+    }
+  }
+
+  for (let i = 0; i < rows.length; i++) {
+    if (new_project_task[rows[i].task_id] in projects){
+      projects[new_project_task[rows[i].task_id]].push({
+        name: rows[i].contents,
+        dev_name: rows[i].username,
+        status: new_task_status[rows[i].task_id],
+        taskid: rows[i].task_id
+      })
+    }else{
+      projects[new_project_task[rows[i].task_id]] = [{
+        name: rows[i].contents,
+        dev_name: rows[i].username,
+        status: new_task_status[rows[i].task_id],
+        taskid: rows[i].task_id
+      }]
+    }
+  }
+
+  // add the rest of the projects
+
+  for (let i = 0; i < all_projects.length; i++) {
+    //Do stuff where key would be 0 and value would be the object
+    if ( ! (all_projects[i].name in projects) ){
+      projects [all_projects[i].name] = {}
+    }
+  }
+
+  // change to an appropriete format
+
+  new_projects = []
+
+  for (const [key, value] of Object.entries(projects)) {
+    //Do stuff where key would be 0 and value would be the object
+    new_projects.push(
+      {
+        name: key,
+        projectid: proj_name_id [key],
+        tasks: value
+      }
+    )
+  }
+
+  return new_projects
+}
+
+function buildHierarchy(rows, project_task, task_status){
+
+  
 
   // group users
   // new_task_user = {}
@@ -66,6 +133,10 @@ function buildHierarchy(rows, project_task, task_status){
     }
   }
 
+  // add the rest of the tasks
+
+
+
   // change to an appropriete format
 
   new_projects = []
@@ -91,6 +162,7 @@ exports.allTasks = (req, res) => {
   var project_task = []
   var users_task = []
   var task_status = []
+  var tasks = []
 
   var query = ""
 
@@ -157,9 +229,42 @@ exports.allTasks = (req, res) => {
               })
             })
             
-            res.json({
-                all_tasks: buildHierarchy(rows, project_task, task_status)
+            if (typeof req.params.userId === 'undefined'){
+
+              await new Promise((resolve, reject) => {
+                  mdb.query(`select * from task;`, (err, rows, fields) => {
+                      if (!err){
+                          tasks = rows
+                          resolve()
+                      }else{
+                          reject()
+                          console.log(err);
+                      }
+                  })
+              })
+
+              var all_projects = []
+              await new Promise((resolve, reject) => {
+                mdb.query(`select * from _project;`, (err, rows, fields) => {
+                    if (!err){
+                        all_projects = rows
+                        resolve()
+                    }else{
+                        reject()
+                        console.log(err);
+                    }
+                })
             })
+
+              res.json({
+                all_tasks: buildIndependentHierarchy(rows, project_task, task_status, all_projects)
+              })
+            }
+            else{
+              res.json({
+                all_tasks: buildHierarchy(rows, project_task, task_status)
+              })
+            }
             // res.end()
             // console.log(`${rows.length}`)
             // res.return('users/index', {
