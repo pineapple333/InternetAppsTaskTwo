@@ -40,6 +40,7 @@ class ProjService {
   }
   
   addDev (taskid, devid){
+	  console.log(taskid);
 	  return axios.post(API_URL + "developer", {
 		  task_id: taskid,
 		  user_id: devid
@@ -51,6 +52,7 @@ class ProjService {
   }
   
   finishProject (projid){
+	  console.log(projid);
 	  return axios.delete(API_URL + "project/" + projid)
   }
 }

@@ -26,8 +26,8 @@ db.sequelize.sync();
 // Create connection
 const mdb = mysql.createConnection({
     host: 'localhost',
-    user: 'webuser',
-    password: '1234',
+    user: 'root',
+    password: 'haselo',
     database: 'groupbase'
 });
 
