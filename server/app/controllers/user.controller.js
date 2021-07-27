@@ -14,14 +14,20 @@ exports.moderatorBoard = (req, res) => {
   res.status(200).send("Moderator Content.");
 };
 
-function buildIndependentHierarchy(rows, project_task, task_status, all_projects){
+function buildIndependentHierarchy(rows, project_task, task_status, tasks, all_projects){
 
   var projects = {}
 
   var new_task_status = {}
   for (let i = 0; i < task_status.length; i++){
-    new_task_status [task_status[i].task_id] = task_status[i].name
+    new_task_status[task_status[i].task_id] = task_status[i].name
   }
+
+  tasks_from_rows = []
+  for (var row in rows)
+    tasks_from_rows.push(row.task_id)
+
+  console.log(tasks_from_rows)
 
   var new_project_task = {}
   var proj_name_id = {}
@@ -59,11 +65,25 @@ function buildIndependentHierarchy(rows, project_task, task_status, all_projects
   for (let i = 0; i < all_projects.length; i++) {
     //Do stuff where key would be 0 and value would be the object
     if ( ! (all_projects[i].name in projects) ){
-      projects [all_projects[i].name] = {}
+      projects [all_projects[i].name] = []
     }
   }
 
-  // change to an appropriete format
+  // add the rest of the tasks
+
+  // for (var i = 0; i < tasks.length; i++){
+  //   if ( ! (tasks[i].id in tasks_from_rows) ){
+  //     console.log(`Adding previously non existant: ${new_project_task[tasks[i].id]}`)
+  //     projects [new_project_task[tasks[i].id]].push(
+  //       {
+  //         name: tasks[i].contents,
+  //         dev_name: null,
+  //         status: new_task_status[tasks[i].id],
+  //         taskid: tasks[i].id
+  //       }
+  //     )
+  //   }
+  // }
 
   new_projects = []
 
@@ -83,7 +103,7 @@ function buildIndependentHierarchy(rows, project_task, task_status, all_projects
 
 function buildHierarchy(rows, project_task, task_status){
 
-  
+  projects = {}
 
   // group users
   // new_task_user = {}
@@ -257,7 +277,7 @@ exports.allTasks = (req, res) => {
             })
 
               res.json({
-                all_tasks: buildIndependentHierarchy(rows, project_task, task_status, all_projects)
+                all_tasks: buildIndependentHierarchy(rows, project_task, task_status, tasks, all_projects)
               })
             }
             else{
