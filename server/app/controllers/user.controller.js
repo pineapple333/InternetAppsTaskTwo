@@ -24,10 +24,8 @@ function buildIndependentHierarchy(rows, project_task, task_status, tasks, all_p
   }
 
   tasks_from_rows = []
-  for (var row in rows)
-    tasks_from_rows.push(row.task_id)
-
-  console.log(tasks_from_rows)
+  for (let i = 0; i < rows.length; i++)
+    tasks_from_rows.push(rows[i].task_id)
 
   var new_project_task = {}
   var proj_name_id = {}
@@ -37,10 +35,12 @@ function buildIndependentHierarchy(rows, project_task, task_status, tasks, all_p
       proj_name_id [project_task[i].name] = project_task[i].id
     }
     else{
-      new_project_task [project_task[i].task_id] = [project_task[i].name]
+      new_project_task [project_task[i].task_id] = project_task[i].name
       proj_name_id [project_task[i].name] = project_task[i].id
     }
   }
+
+  console.log(new_project_task)
 
   for (let i = 0; i < rows.length; i++) {
     if (new_project_task[rows[i].task_id] in projects){
@@ -73,8 +73,8 @@ function buildIndependentHierarchy(rows, project_task, task_status, tasks, all_p
 
   // for (var i = 0; i < tasks.length; i++){
   //   if ( ! (tasks[i].id in tasks_from_rows) ){
-  //     console.log(`Adding previously non existant: ${new_project_task[tasks[i].id]}`)
-  //     projects [new_project_task[tasks[i].id]].push(
+  //     console.log(`Adding previously non existant: ${tasks[i].id}`)
+  //     projects[new_project_task[tasks[i].id]].push(
   //       {
   //         name: tasks[i].contents,
   //         dev_name: null,
@@ -326,7 +326,7 @@ exports.addTaskToUser = async (req, res) => {
   const user_id = req.body.user_id
 
   // const insert_query = `call insert_task('${contents}', ${project_id});`
-  mdb.query(`select * from task_user where user_id = ${user_id} and task_id = ${task_id};`, async (outer_err, outer_rows, fields) => {
+  mdb.query(`select * from task_user where task_id = ${task_id};`, async (outer_err, outer_rows, fields) => {
     if (!outer_err){
         if (outer_rows.length === 0){
           await new Promise((resolve, reject) => {
@@ -354,7 +354,30 @@ exports.addTaskToUser = async (req, res) => {
 
           res.json({message: "Assigned the task to the user"})
         }else{
-          res.json({message: "This task has been assigned to this user."})
+          // set the status of a task
+          await new Promise((resolve, reject) => {
+            mdb.query(`update task_user set user_id = ${user_id} where task_id = ${task_id};`, (inner_err, inner_rows, fields) => {
+                if (!inner_err){
+                    resolve()
+                }else{
+                    console.log(inner_err);
+                    reject()
+                }
+            })
+
+            // set the status of a task
+            await new Promise((resolve, reject) => {
+                mdb.query(`update task_status set status_id = 2 where task_id = ${task_id};`, (inner_err, inner_rows, fields) => {
+                    if (!inner_err){
+                        resolve()
+                    }else{
+                        console.log(inner_err);
+                        reject()
+                    }
+                })
+            })
+        })
+          res.json({message: "The task has been reassigned."})
         }
     }
   })
